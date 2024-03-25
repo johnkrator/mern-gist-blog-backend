@@ -62,9 +62,9 @@ export const google = async (req, res, next) => {
     try {
         const user = await User.findOne({email});
         if (user) {
-            jwt.sign(
+            const token = jwt.sign(
                 {id: user._id, isAdmin: user.isAdmin},
-                process.env.JWT_SECRET,
+                process.env.JWT_SECRET
             );
             const {password, ...rest} = user._doc;
             res
@@ -86,15 +86,18 @@ export const google = async (req, res, next) => {
 
                 email,
                 password: hashedPassword,
-                profilePicture: googlePhotoUrl
+                profilePicture: googlePhotoUrl,
             });
             await newUser.save();
 
-            const token = jwt.sign({
+            const token = jwt.sign(
+                {
                     id: newUser._id,
-                    isAdmin: newUser.isAdmin
-                }, process.env.JWT_SECRET,
-                {expiresIn: "1h"});
+                    isAdmin: newUser.isAdmin,
+                },
+                process.env.JWT_SECRET,
+                {expiresIn: "1h"}
+            );
 
             const {password, ...userData} = newUser._doc;
             res
